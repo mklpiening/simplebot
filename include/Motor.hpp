@@ -9,15 +9,17 @@ public:
 
     void setSpeed(const int16_t speed);
 
+    uint16_t getSpeed() const;
+
     void setSpeedMultiplicator(const float speedMultiplicator);
 
-    float getSpeedMultiplicator();
+    float getSpeedMultiplicator() const;
 
     void readPulsesFromSensor();
 
     void resetPulses();
 
-    int32_t getPulses();
+    int32_t getPulses() const;
 
 private:
     void applySpeed();

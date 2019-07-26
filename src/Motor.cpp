@@ -15,13 +15,13 @@ Motor::Motor(const uint8_t pwm, const uint8_t in1, const uint8_t in2, const uint
 }
 
 void Motor::setSpeed(const int16_t speed) {
-    if (m_reverse) {
-        m_speed = -speed;
-    } else {
-        m_speed = speed;
-    }
+    m_speed = speed;
 
     applySpeed();
+}
+
+uint16_t Motor::getSpeed() const {
+    return m_speed;
 }
 
 void Motor::setSpeedMultiplicator(const float speedMultiplicator) {
@@ -30,7 +30,7 @@ void Motor::setSpeedMultiplicator(const float speedMultiplicator) {
     applySpeed();
 }
 
-float Motor::getSpeedMultiplicator() {
+float Motor::getSpeedMultiplicator() const {
     return m_speedMultiplicator;
 }
 
@@ -51,8 +51,6 @@ void Motor::readPulsesFromSensor() {
                 }
             }
 
-            Serial.println(m_pulses);
-
             m_prevEncoderState = false;
         }
     } else {
@@ -66,7 +64,7 @@ void Motor::resetPulses() {
     m_pulses = 0;
 }
 
-int32_t Motor::getPulses() {
+int32_t Motor::getPulses() const {
     return m_pulses;
 }
 
@@ -76,12 +74,24 @@ void Motor::applySpeed() {
         digitalWrite(m_in2, HIGH);
         analogWrite(m_pwm, 0);
     } else if (m_speed < 0) {
-        digitalWrite(m_in1, LOW);
-        digitalWrite(m_in2, HIGH);
-        analogWrite(m_pwm, -m_speedMultiplicator * m_speed);
+        if (m_reverse) {
+            digitalWrite(m_in1, HIGH);
+            digitalWrite(m_in2, LOW);
+            analogWrite(m_pwm, -m_speedMultiplicator * m_speed);
+        } else {
+            digitalWrite(m_in1, LOW);
+            digitalWrite(m_in2, HIGH);
+            analogWrite(m_pwm, -m_speedMultiplicator * m_speed);
+        }
     } else {
-        digitalWrite(m_in1, HIGH);
-        digitalWrite(m_in2, LOW);
-        analogWrite(m_pwm, m_speedMultiplicator * m_speed);
+        if (m_reverse) {
+            digitalWrite(m_in1, LOW);
+            digitalWrite(m_in2, HIGH);
+            analogWrite(m_pwm, m_speedMultiplicator * m_speed);
+        } else {
+            digitalWrite(m_in1, HIGH);
+            digitalWrite(m_in2, LOW);
+            analogWrite(m_pwm, m_speedMultiplicator * m_speed);
+        }
     }
 }
