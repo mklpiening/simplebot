@@ -15,6 +15,8 @@ private:
     uint8_t m_nMotors;
     Motor** m_motors;
 
+    int64_t* m_lastPulses;
+
     uint32_t m_numMillis;
     unsigned long m_nextSync;
 };

@@ -64,7 +64,7 @@ void Motor::resetPulses() {
     m_pulses = 0;
 }
 
-int32_t Motor::getPulses() const {
+int64_t Motor::getPulses() const {
     return m_pulses;
 }
 

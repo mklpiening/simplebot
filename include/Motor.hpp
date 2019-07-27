@@ -19,7 +19,7 @@ public:
 
     void resetPulses();
 
-    int32_t getPulses() const;
+    int64_t getPulses() const;
 
 private:
     void applySpeed();
@@ -35,7 +35,7 @@ private:
     int16_t m_speed;
 
     /// rotation pulses
-    int32_t m_pulses;
+    int64_t m_pulses;
 
     bool m_prevEncoderState;
 

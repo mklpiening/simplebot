@@ -25,26 +25,21 @@ void loop() {
     if(sync.synchronize()) {
         Serial.println();
         Serial.print("A0 ");
-        Serial.print(a0.getPulses());
+        Serial.print((int) a0.getPulses());
         Serial.print(" ");
         Serial.println(a0.getSpeedMultiplicator());
         Serial.print("A1 ");
-        Serial.print(a1.getPulses());
+        Serial.print((int) a1.getPulses());
         Serial.print(" ");
         Serial.println(a1.getSpeedMultiplicator());
         Serial.print("B0 ");
-        Serial.print(b0.getPulses());
+        Serial.print((int) b0.getPulses());
         Serial.print(" ");
         Serial.println(b0.getSpeedMultiplicator());
         Serial.print("B1 ");
-        Serial.print(b1.getPulses());
+        Serial.print((int) b1.getPulses());
         Serial.print(" ");
         Serial.println(b1.getSpeedMultiplicator());
-
-        a0.resetPulses();
-        a1.resetPulses();
-        b0.resetPulses();
-        b1.resetPulses();
     }
 
     
