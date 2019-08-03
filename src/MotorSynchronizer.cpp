@@ -16,7 +16,7 @@ bool MotorSynchronizer::synchronize() {
         for (int i = 0; i < m_nMotors; i++) {
             for (int j = 0; j < m_nMotors; j++) {
                 if (m_motors[i]->getSpeed() == m_motors[j]->getSpeed()) {
-                    diff = ((m_motors[i]->getPulses() - m_lastPulses[i]) - (m_motors[j]->getPulses() - m_lastPulses[j])) * 0.001f;
+                    diff = (m_motors[i]->getSpeed() < 0 ? -1 : 1) * ((m_motors[i]->getPulses() - m_lastPulses[i]) - (m_motors[j]->getPulses() - m_lastPulses[j])) * 0.001f;
                     m_motors[i]->setSpeedMultiplicator(m_motors[i]->getSpeedMultiplicator() - diff);
                 }
             }

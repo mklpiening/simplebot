@@ -7,7 +7,7 @@
 
 class MotorSynchronizer {
 public:
-    MotorSynchronizer(const uint8_t nMotors, Motor** motors, uint32_t numMillis = 500);
+    MotorSynchronizer(const uint8_t nMotors, Motor** motors, uint32_t numMillis = 200);
 
     bool synchronize();
 
