@@ -23,23 +23,29 @@ void loop() {
     b1.readPulsesFromSensor();
 
     if(sync.synchronize()) {
-        Serial.println();
-        Serial.print("A0 ");
-        Serial.print((int) a0.getPulses());
-        Serial.print(" ");
-        Serial.println(a0.getSpeedMultiplicator());
-        Serial.print("A1 ");
-        Serial.print((int) a1.getPulses());
-        Serial.print(" ");
-        Serial.println(a1.getSpeedMultiplicator());
-        Serial.print("B0 ");
-        Serial.print((int) b0.getPulses());
-        Serial.print(" ");
-        Serial.println(b0.getSpeedMultiplicator());
-        Serial.print("B1 ");
-        Serial.print((int) b1.getPulses());
-        Serial.print(" ");
-        Serial.println(b1.getSpeedMultiplicator());
+        Serial.write(0xFF);
+
+        int64_t rotL = (b1.getPulses() + a1.getPulses()) / 2;
+        Serial.write((uint8_t) (rotL & 0xFF));
+        Serial.write((uint8_t) ((rotL >> 8) & 0xFF));
+        Serial.write((uint8_t) ((rotL >> 16) & 0xFF));
+        Serial.write((uint8_t) ((rotL >> 24) & 0xFF));
+        Serial.write((uint8_t) ((rotL >> 32) & 0xFF));
+        Serial.write((uint8_t) ((rotL >> 40) & 0xFF));
+        Serial.write((uint8_t) ((rotL >> 48) & 0xFF));
+        Serial.write((uint8_t) ((rotL >> 56) & 0xFF));
+
+        int64_t rotR = (b0.getPulses() + a0.getPulses()) / 2;
+        Serial.write((uint8_t) (rotR & 0xFF));
+        Serial.write((uint8_t) ((rotR >> 8) & 0xFF));
+        Serial.write((uint8_t) ((rotR >> 16) & 0xFF));
+        Serial.write((uint8_t) ((rotR >> 24) & 0xFF));
+        Serial.write((uint8_t) ((rotR >> 32) & 0xFF));
+        Serial.write((uint8_t) ((rotR >> 40) & 0xFF));
+        Serial.write((uint8_t) ((rotR >> 48) & 0xFF));
+        Serial.write((uint8_t) ((rotR >> 56) & 0xFF));
+
+        Serial.flush();
     }
 
     
@@ -48,14 +54,14 @@ void loop() {
         delay(2);
         uint8_t dirs = Serial.read();
         if ((dirs & 0b11111100) == 0) {
-        int16_t speedL = (((dirs & 0b00000010) >> 1) == 1 ? -1 : 1) * Serial.read();
-        int16_t speedR = ((dirs  & 0b00000001) == 1 ? -1 : 1) * Serial.read();
-        
-        a0.setSpeed(speedR);
-        b0.setSpeed(speedR);
+            int16_t speedL = (((dirs & 0b00000010) >> 1) == 1 ? -1 : 1) * Serial.read();
+            int16_t speedR = ((dirs  & 0b00000001) == 1 ? -1 : 1) * Serial.read();
+            
+            a0.setSpeed(speedR);
+            b0.setSpeed(speedR);
 
-        a1.setSpeed(speedL);
-        b1.setSpeed(speedL);
+            a1.setSpeed(speedL);
+            b1.setSpeed(speedL);
         }
     }
 }
