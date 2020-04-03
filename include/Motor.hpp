@@ -3,27 +3,29 @@
 
 #include <Arduino.h>
 
-class Motor {
-public:
-    Motor(const uint8_t pwm, const uint8_t in1, const uint8_t in2, const uint8_t ena, const uint8_t enb, const bool reverse, const float speedMultiplicator = 1);
+class Motor
+{
+  public:
+    Motor(uint8_t pwm, uint8_t in1, uint8_t in2, uint8_t ena, uint8_t enb, bool invert);
 
-    void setSpeed(const int16_t speed);
+    void setPWM(int16_t speed);
 
-    uint16_t getSpeed() const;
+    uint16_t getPWM() const;
 
-    void setSpeedMultiplicator(const float speedMultiplicator);
-
-    float getSpeedMultiplicator() const;
-
-    void readPulsesFromSensor();
+    virtual void handle();
 
     void resetPulses();
 
     int64_t getPulses() const;
 
-private:
+  protected:
+    /// true if the motor direction is inverted
+    bool m_invert;
+
+  private:
     void applySpeed();
 
+    /// motor pins
     uint8_t m_pwm;
     uint8_t m_in1;
     uint8_t m_in2;
@@ -32,16 +34,14 @@ private:
     uint8_t m_ena;
     uint8_t m_enb;
 
-    int16_t m_speed;
+    /// current pwm value used for the motor speed
+    int16_t m_speed_pwm;
 
     /// rotation pulses
     int64_t m_pulses;
 
+    /// previous encoder pulse state (1 or 0)
     bool m_prevEncoderState;
-
-    bool m_reverse;
-
-    float m_speedMultiplicator;
 };
 
 #endif
