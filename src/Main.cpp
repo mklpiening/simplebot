@@ -4,6 +4,8 @@
 
 #include <Arduino.h>
 
+// #define CALIBRATION
+
 // right side
 MotorPID g_a0(PWMA_0, AIN1_0, AIN2_0, AENA_0, AENB_0, false, 100, KP_A0, KI_A0, KD_A0);
 MotorPID g_b0(PWMB_0, BIN1_0, BIN2_0, BENA_0, BENB_0, false, 100, KP_B0, KI_B0, KD_B0);
@@ -27,8 +29,10 @@ void setup()
     Serial.begin(115200);
 }
 
+#ifdef CALIBRATION
 float speed = 0;
 int iteration = 0;
+#endif
 
 void loop()
 {
@@ -41,40 +45,42 @@ void loop()
     {
         g_lastOdomTransTime = millis();
 
-        //Serial.write(0xFF);
+#ifndef CALIBRATION
+        Serial.write(0xFF);
 
-        //float rotL    = (float)(g_b1.getPulses() + g_a1.getPulses()) / (PULSES_PER_ROTATION * 2);
-        //int64_t dRotL = (rotL - g_lastRotL) * 10000;
-        //g_lastRotL    = rotL;
-        //Serial.write((uint8_t)(dRotL & 0xFF));
-        //Serial.write((uint8_t)((dRotL >> 8) & 0xFF));
-        //Serial.write((uint8_t)((dRotL >> 16) & 0xFF));
-        //Serial.write((uint8_t)((dRotL >> 24) & 0xFF));
-        //Serial.write((uint8_t)((dRotL >> 32) & 0xFF));
-        //Serial.write((uint8_t)((dRotL >> 40) & 0xFF));
-        //Serial.write((uint8_t)((dRotL >> 48) & 0xFF));
-        //Serial.write((uint8_t)((dRotL >> 56) & 0xFF));
+        float rotL    = (float)(g_b1.getPulses() + g_a1.getPulses()) / (PULSES_PER_ROTATION * 2);
+        int64_t dRotL = (rotL - g_lastRotL) * 10000;
+        g_lastRotL    = rotL;
+        Serial.write((uint8_t)(dRotL & 0xFF));
+        Serial.write((uint8_t)((dRotL >> 8) & 0xFF));
+        Serial.write((uint8_t)((dRotL >> 16) & 0xFF));
+        Serial.write((uint8_t)((dRotL >> 24) & 0xFF));
+        Serial.write((uint8_t)((dRotL >> 32) & 0xFF));
+        Serial.write((uint8_t)((dRotL >> 40) & 0xFF));
+        Serial.write((uint8_t)((dRotL >> 48) & 0xFF));
+        Serial.write((uint8_t)((dRotL >> 56) & 0xFF));
 
-        //float rotR    = (float)(g_b0.getPulses() + g_a0.getPulses()) / (PULSES_PER_ROTATION * 2);
-        //int64_t dRotR = (rotR - g_lastRotR) * 10000;
-        //g_lastRotR    = rotR;
-        //Serial.write((uint8_t)(dRotR & 0xFF));
-        //Serial.write((uint8_t)((dRotR >> 8) & 0xFF));
-        //Serial.write((uint8_t)((dRotR >> 16) & 0xFF));
-        //Serial.write((uint8_t)((dRotR >> 24) & 0xFF));
-        //Serial.write((uint8_t)((dRotR >> 32) & 0xFF));
-        //Serial.write((uint8_t)((dRotR >> 40) & 0xFF));
-        //Serial.write((uint8_t)((dRotR >> 48) & 0xFF));
-        //Serial.write((uint8_t)((dRotR >> 56) & 0xFF));
+        float rotR    = (float)(g_b0.getPulses() + g_a0.getPulses()) / (PULSES_PER_ROTATION * 2);
+        int64_t dRotR = (rotR - g_lastRotR) * 10000;
+        g_lastRotR    = rotR;
+        Serial.write((uint8_t)(dRotR & 0xFF));
+        Serial.write((uint8_t)((dRotR >> 8) & 0xFF));
+        Serial.write((uint8_t)((dRotR >> 16) & 0xFF));
+        Serial.write((uint8_t)((dRotR >> 24) & 0xFF));
+        Serial.write((uint8_t)((dRotR >> 32) & 0xFF));
+        Serial.write((uint8_t)((dRotR >> 40) & 0xFF));
+        Serial.write((uint8_t)((dRotR >> 48) & 0xFF));
+        Serial.write((uint8_t)((dRotR >> 56) & 0xFF));
 
-        //Serial.flush();
+        Serial.flush();
+#else
         
-        Serial.println((int) (g_b1.getCurrentRPS() * 1000));
-        Serial.println((int) (g_b1.getPWM() * 1000.0 / 255));
+        Serial.println((int) (g_a0.getCurrentRPS() * 1000));
+        Serial.println((int) (g_a0.getPWM() * 1000.0 / 255));
         Serial.println((int) (speed * 1000));
 
         if (iteration == 20) {
-            speed = 1; 
+            speed = -0.5; 
         }
 
         if (iteration == 60) {
@@ -90,6 +96,14 @@ void loop()
         }
 
         if (iteration == 180) {
+            speed = -2;
+        }
+
+        if (iteration == 200) {
+            speed = 2;
+        }
+
+        if (iteration == 220) {
             iteration = 0;
             speed = 0;
         }
@@ -100,6 +114,7 @@ void loop()
         g_b1.setRPS(speed);
         
         iteration++;
+#endif
     }
 
     if (Serial.read() == 0xff)

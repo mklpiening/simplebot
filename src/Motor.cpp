@@ -65,6 +65,10 @@ void Motor::handle()
             m_prevEncoderState = true;
         }
     }
+
+    if (m_pulses > 10000 << m_pulses < -10000) {
+        resetPulses(); 
+    }
 }
 
 void Motor::resetPulses()
