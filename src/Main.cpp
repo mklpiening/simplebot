@@ -5,12 +5,12 @@
 #include <Arduino.h>
 
 // right side
-MotorPID g_a0(PWMA_0, AIN1_0, AIN2_0, AENA_0, AENB_0, false, 30, KP_A0, KI_A0, KD_A0);
-MotorPID g_b0(PWMB_0, BIN1_0, BIN2_0, BENA_0, BENB_0, false, 30, KP_B0, KI_B0, KD_B0);
+MotorPID g_a0(PWMA_0, AIN1_0, AIN2_0, AENA_0, AENB_0, false, 100, KP_A0, KI_A0, KD_A0);
+MotorPID g_b0(PWMB_0, BIN1_0, BIN2_0, BENA_0, BENB_0, false, 100, KP_B0, KI_B0, KD_B0);
 
 // left side
-MotorPID g_a1(PWMA_1, AIN1_1, AIN2_1, AENA_1, AENB_1, true, 30, KP_A1, KI_A1, KD_A1);
-MotorPID g_b1(PWMB_1, BIN1_1, BIN2_1, BENA_1, BENB_1, true, 30, KP_B1, KI_B1, KD_B1);
+MotorPID g_a1(PWMA_1, AIN1_1, AIN2_1, AENA_1, AENB_1, true, 100, KP_A1, KI_A1, KD_A1);
+MotorPID g_b1(PWMB_1, BIN1_1, BIN2_1, BENA_1, BENB_1, true, 100, KP_B1, KI_B1, KD_B1);
 
 unsigned long g_lastOdomTransTime = 0;
 
@@ -27,6 +27,9 @@ void setup()
     Serial.begin(115200);
 }
 
+float speed = 0;
+int iteration = 0;
+
 void loop()
 {
     g_a0.handle();
@@ -34,37 +37,69 @@ void loop()
     g_a1.handle();
     g_b1.handle();
 
-    if (millis() - g_lastOdomTransTime > 100)
+    if (millis() - g_lastOdomTransTime > 120)
     {
         g_lastOdomTransTime = millis();
 
-        Serial.write(0xFF);
+        //Serial.write(0xFF);
 
-        float rotL    = (float)(g_b1.getPulses() + g_a1.getPulses()) / (PULSES_PER_ROTATION * 2);
-        int64_t dRotL = (rotL - g_lastRotL) * 10000;
-        g_lastRotL    = rotL;
-        Serial.write((uint8_t)(dRotL & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 8) & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 16) & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 24) & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 32) & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 40) & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 48) & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 56) & 0xFF));
+        //float rotL    = (float)(g_b1.getPulses() + g_a1.getPulses()) / (PULSES_PER_ROTATION * 2);
+        //int64_t dRotL = (rotL - g_lastRotL) * 10000;
+        //g_lastRotL    = rotL;
+        //Serial.write((uint8_t)(dRotL & 0xFF));
+        //Serial.write((uint8_t)((dRotL >> 8) & 0xFF));
+        //Serial.write((uint8_t)((dRotL >> 16) & 0xFF));
+        //Serial.write((uint8_t)((dRotL >> 24) & 0xFF));
+        //Serial.write((uint8_t)((dRotL >> 32) & 0xFF));
+        //Serial.write((uint8_t)((dRotL >> 40) & 0xFF));
+        //Serial.write((uint8_t)((dRotL >> 48) & 0xFF));
+        //Serial.write((uint8_t)((dRotL >> 56) & 0xFF));
 
-        float rotR    = (float)(g_b0.getPulses() + g_a0.getPulses()) / (PULSES_PER_ROTATION * 2);
-        int64_t dRotR = (rotR - g_lastRotR) * 10000;
-        g_lastRotR    = rotR;
-        Serial.write((uint8_t)(dRotR & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 8) & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 16) & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 24) & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 32) & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 40) & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 48) & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 56) & 0xFF));
+        //float rotR    = (float)(g_b0.getPulses() + g_a0.getPulses()) / (PULSES_PER_ROTATION * 2);
+        //int64_t dRotR = (rotR - g_lastRotR) * 10000;
+        //g_lastRotR    = rotR;
+        //Serial.write((uint8_t)(dRotR & 0xFF));
+        //Serial.write((uint8_t)((dRotR >> 8) & 0xFF));
+        //Serial.write((uint8_t)((dRotR >> 16) & 0xFF));
+        //Serial.write((uint8_t)((dRotR >> 24) & 0xFF));
+        //Serial.write((uint8_t)((dRotR >> 32) & 0xFF));
+        //Serial.write((uint8_t)((dRotR >> 40) & 0xFF));
+        //Serial.write((uint8_t)((dRotR >> 48) & 0xFF));
+        //Serial.write((uint8_t)((dRotR >> 56) & 0xFF));
 
-        Serial.flush();
+        //Serial.flush();
+        
+        Serial.println((int) (g_b1.getCurrentRPS() * 1000));
+        Serial.println((int) (g_b1.getPWM() * 1000.0 / 255));
+        Serial.println((int) (speed * 1000));
+
+        if (iteration == 20) {
+            speed = 1; 
+        }
+
+        if (iteration == 60) {
+            speed = 0.5; 
+        }
+
+        if (iteration == 100) {
+            speed = 2; 
+        }
+
+        if (iteration > 140 && iteration < 180) {
+            speed -= 0.05; 
+        }
+
+        if (iteration == 180) {
+            iteration = 0;
+            speed = 0;
+        }
+
+        g_a0.setRPS(speed);
+        g_a1.setRPS(speed);
+        g_b0.setRPS(speed);
+        g_b1.setRPS(speed);
+        
+        iteration++;
     }
 
     if (Serial.read() == 0xff)
