@@ -19,6 +19,17 @@ unsigned long g_lastOdomTransTime = 0;
 float g_lastRotL = 0;
 float g_lastRotR = 0;
 
+bool checkParity(int64_t data) {
+    int numOnes = 0;
+    for (int i = 0; i < 64; i++) {
+        if (data & (1 << i)) {
+            numOnes++;
+        }  
+    }
+
+    return numOnes % 2 == 0;
+}
+
 void setup()
 {
     g_a0.setRPS(0);
@@ -117,7 +128,7 @@ void loop()
 #endif
     }
 
-    if (Serial.read() == 0xff)
+    if (Serial.read() == 0xFF)
     {
         delay(2);
 
@@ -141,13 +152,19 @@ void loop()
         speedR |= (int64_t)Serial.read() << 48;
         speedR |= (int64_t)Serial.read() << 56;
 
-        float rotL = (float)speedL / 10000;
-        float rotR = (float)speedR / 10000;
+        uint8_t parities = Serial.read();
+        bool parityL = (parities & 0x01);
+        bool parityR = ((parities >> 1) & 0x01);
 
-        g_a0.setRPS(rotR);
-        g_b0.setRPS(rotR);
+        if (Serial.read() == 0xFF && checkParity(speedL) != parityL  && checkParity(speedR) != parityR) {
+            float rotL = (float)speedL / 10000;
+            float rotR = (float)speedR / 10000;
 
-        g_a1.setRPS(rotL);
-        g_b1.setRPS(rotL);
+            g_a0.setRPS(rotR);
+            g_b0.setRPS(rotR);
+
+            g_a1.setRPS(rotL);
+            g_b1.setRPS(rotL);
+        }
     }
 }
