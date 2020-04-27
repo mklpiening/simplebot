@@ -16,15 +16,20 @@ MotorPID g_b1(PWMB_1, BIN1_1, BIN2_1, BENA_1, BENB_1, true, 100, KP_B1, KI_B1, K
 
 unsigned long g_lastOdomTransTime = 0;
 
-float g_lastRotL = 0;
-float g_lastRotR = 0;
+float g_lastRotFL = 0;
+float g_lastRotRL = 0;
+float g_lastRotFR = 0;
+float g_lastRotRR = 0;
 
-bool checkParity(int64_t data) {
+bool checkParity(int64_t data)
+{
     int numOnes = 0;
-    for (int i = 0; i < 64; i++) {
-        if (data & (1 << i)) {
+    for (int i = 0; i < 64; i++)
+    {
+        if (data & (1 << i))
+        {
             numOnes++;
-        }  
+        }
     }
 
     return numOnes % 2 == 0;
@@ -41,7 +46,7 @@ void setup()
 }
 
 #ifdef CALIBRATION
-float speed = 0;
+float speed   = 0;
 int iteration = 0;
 #endif
 
@@ -59,71 +64,80 @@ void loop()
 #ifndef CALIBRATION
         Serial.write(0xFF);
 
-        float rotL    = (float)(g_b1.getPulses() + g_a1.getPulses()) / (PULSES_PER_ROTATION * 2);
-        int64_t dRotL = (rotL - g_lastRotL) * 10000;
-        g_lastRotL    = rotL;
-        Serial.write((uint8_t)(dRotL & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 8) & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 16) & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 24) & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 32) & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 40) & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 48) & 0xFF));
-        Serial.write((uint8_t)((dRotL >> 56) & 0xFF));
+        float rotFL    = (float)g_a1.getPulses() / PULSES_PER_ROTATION;
+        int16_t dRotFL = (rotFL - g_lastRotFL) * 10000;
+        g_lastRotFL    = rotFL;
+        Serial.write((uint8_t)(dRotFL & 0xFF));
+        Serial.write((uint8_t)((dRotFL >> 8) & 0xFF));
 
-        float rotR    = (float)(g_b0.getPulses() + g_a0.getPulses()) / (PULSES_PER_ROTATION * 2);
-        int64_t dRotR = (rotR - g_lastRotR) * 10000;
-        g_lastRotR    = rotR;
-        Serial.write((uint8_t)(dRotR & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 8) & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 16) & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 24) & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 32) & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 40) & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 48) & 0xFF));
-        Serial.write((uint8_t)((dRotR >> 56) & 0xFF));
+        float rotRL    = (float)g_b1.getPulses() / PULSES_PER_ROTATION;
+        int16_t dRotRL = (rotRL - g_lastRotRL) * 10000;
+        g_lastRotRL    = rotRL;
+        Serial.write((uint8_t)(dRotRL & 0xFF));
+        Serial.write((uint8_t)((dRotRL >> 8) & 0xFF));
+
+        float rotFR    = (float)g_a0.getPulses() / PULSES_PER_ROTATION;
+        int16_t dRotFR = (rotFR - g_lastRotFR) * 10000;
+        g_lastRotFR    = rotFR;
+        Serial.write((uint8_t)(dRotFR & 0xFF));
+        Serial.write((uint8_t)((dRotFR >> 8) & 0xFF));
+
+        float rotRR    = (float)g_b0.getPulses() / PULSES_PER_ROTATION;
+        int16_t dRotRR = (rotRR - g_lastRotRR) * 10000;
+        g_lastRotRR    = rotRR;
+        Serial.write((uint8_t)(dRotRR & 0xFF));
+        Serial.write((uint8_t)((dRotRR >> 8) & 0xFF));
 
         Serial.flush();
 #else
-        
-        Serial.println((int) (g_a0.getCurrentRPS() * 1000));
-        Serial.println((int) (g_a0.getPWM() * 1000.0 / 255));
-        Serial.println((int) (speed * 1000));
 
-        if (iteration == 20) {
-            speed = -0.5; 
+        Serial.println((int)(g_a0.getCurrentRPS() * 1000));
+        Serial.println((int)(g_a0.getPWM() * 1000.0 / 255));
+        Serial.println((int)(speed * 1000));
+
+        if (iteration == 20)
+        {
+            speed = -0.1;
         }
 
-        if (iteration == 60) {
-            speed = 0.5; 
+        if (iteration == 60)
+        {
+            speed = 0.5;
         }
 
-        if (iteration == 100) {
-            speed = 2; 
-        }
-
-        if (iteration > 140 && iteration < 180) {
-            speed -= 0.05; 
-        }
-
-        if (iteration == 180) {
-            speed = -2;
-        }
-
-        if (iteration == 200) {
+        if (iteration == 100)
+        {
             speed = 2;
         }
 
-        if (iteration == 220) {
-            iteration = 0;
-            speed = 0;
+        if (iteration > 140 && iteration < 180)
+        {
+            speed -= 0.05;
         }
 
+        if (iteration == 180)
+        {
+            speed = -2;
+        }
+
+        if (iteration == 200)
+        {
+            speed = 2;
+        }
+
+        if (iteration == 220)
+        {
+            iteration = 0;
+            speed     = 0;
+        }
+
+        speed = -0.15 / 0.153938;
+
         g_a0.setRPS(speed);
-        g_a1.setRPS(speed);
+        g_a1.setRPS(-speed);
         g_b0.setRPS(speed);
-        g_b1.setRPS(speed);
-        
+        g_b1.setRPS(-speed);
+
         iteration++;
 #endif
     }
@@ -153,12 +167,14 @@ void loop()
         speedR |= (int64_t)Serial.read() << 56;
 
         uint8_t parities = Serial.read();
-        bool parityL = (parities & 0x01);
-        bool parityR = ((parities >> 1) & 0x01);
+        bool parityL     = (parities & 0x01);
+        bool parityR     = ((parities >> 1) & 0x01);
 
-        if (Serial.read() == 0xFF && checkParity(speedL) != parityL  && checkParity(speedR) != parityR) {
-            float rotL = (float)speedL / 10000;
-            float rotR = (float)speedR / 10000;
+        if (Serial.read() == 0xFF && checkParity(speedL) != parityL
+            && checkParity(speedR) != parityR)
+        {
+            float rotL = (float)speedL / 10000.0;
+            float rotR = (float)speedR / 10000.0;
 
             g_a0.setRPS(rotR);
             g_b0.setRPS(rotR);

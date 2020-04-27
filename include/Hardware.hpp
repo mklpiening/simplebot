@@ -9,8 +9,8 @@
 
 // PID
 #define KP_A0 42.0
-#define KI_A0 0.6
-#define KD_A0 0.15
+#define KI_A0 0.3
+#define KD_A0 0.05
 
 // back right
 #define PWMB_0 5
@@ -23,8 +23,8 @@
 
 // PID
 #define KP_B0 42.0
-#define KI_B0 0.6
-#define KD_B0 0.15
+#define KI_B0 0.3
+#define KD_B0 0.05
 
 // front left
 #define PWMA_1 11
@@ -37,8 +37,8 @@
 
 // PID
 #define KP_A1 42.0
-#define KI_A1 0.6
-#define KD_A1 0.15
+#define KI_A1 0.3
+#define KD_A1 0.05
 
 // back left
 #define PWMB_1 9
@@ -51,7 +51,7 @@
 
 // PID
 #define KP_B1 42.0
-#define KI_B1 0.6
-#define KD_B1 0.15
+#define KI_B1 0.3
+#define KD_B1 0.05
 
-#define PULSES_PER_ROTATION 89
+#define PULSES_PER_ROTATION 90
