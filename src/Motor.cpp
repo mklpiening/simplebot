@@ -21,54 +21,74 @@ void Motor::setPWM(int16_t speed)
     applySpeed();
 }
 
-uint16_t Motor::getPWM() const
+int16_t Motor::getPWM() const
 {
     return m_speed_pwm;
 }
 
 void Motor::handle()
 {
-    if (analogRead(m_ena) > 511)
+    bool envA = analogRead(m_ena) > 511;
+    bool envB = analogRead(m_enb) > 511;
+
+    if (envA != m_prevEncA)
     {
-        if (m_prevEncoderState == true)
+        if (envA)
         {
-            if (analogRead(m_enb) < 511)
+            // rising edge
+            if (m_prevEncB)
             {
-                if (m_invert)
-                {
-                    m_pulses++;
-                }
-                else
-                {
-                    m_pulses--;
-                }
+                addPulse();
             }
             else
             {
-                if (m_invert)
-                {
-                    m_pulses--;
-                }
-                else
-                {
-                    m_pulses++;
-                }
+                subPulse();
             }
-
-            m_prevEncoderState = false;
         }
-    }
-    else
-    {
-        if (m_prevEncoderState == false)
+        else
         {
-            m_prevEncoderState = true;
+            // falling edge
+            if (m_prevEncB)
+            {
+                subPulse();
+            }
+            else
+            {
+                addPulse();
+            }
         }
     }
 
-    if (m_pulses > 10000 << m_pulses < -10000) {
-        resetPulses(); 
+    if (envB != m_prevEncB)
+    {
+        if (envB)
+        {
+            // rising edge
+            if (m_prevEncA)
+            {
+                subPulse();
+            }
+            else
+            {
+                addPulse();
+            }
+        }
+        else
+        {
+            // falling edge
+            if (m_prevEncA)
+            {
+                addPulse();
+            }
+            else
+            {
+                subPulse();
+            }
+        }
     }
+
+    m_prevEncA = envA;
+    m_prevEncB = envB;
 }
 
 void Motor::resetPulses()
@@ -118,5 +138,39 @@ void Motor::applySpeed()
             digitalWrite(m_in2, LOW);
             analogWrite(m_pwm, m_speed_pwm);
         }
+    }
+}
+
+void Motor::addPulse()
+{
+    if (!m_invert)
+    {
+        m_pulses++;
+    }
+    else
+    {
+        m_pulses--;
+    }
+
+    if (m_pulses > 10000 || m_pulses < -10000)
+    {
+        resetPulses();
+    }
+}
+
+void Motor::subPulse()
+{
+    if (!m_invert)
+    {
+        m_pulses--;
+    }
+    else
+    {
+        m_pulses++;
+    }
+
+    if (m_pulses > 10000 || m_pulses < -10000)
+    {
+        resetPulses();
     }
 }

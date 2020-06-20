@@ -57,10 +57,8 @@ void loop()
     g_a1.handle();
     g_b1.handle();
 
-    if (millis() - g_lastOdomTransTime > 120)
+    if (millis() - g_lastOdomTransTime > 200)
     {
-        g_lastOdomTransTime = millis();
-
 #ifndef CALIBRATION
         Serial.write(0xFF);
 
@@ -88,12 +86,15 @@ void loop()
         Serial.write((uint8_t)(dRotRR & 0xFF));
         Serial.write((uint8_t)((dRotRR >> 8) & 0xFF));
 
+        Serial.write((uint8_t)(millis() - g_lastOdomTransTime));
+
         Serial.flush();
 #else
 
         Serial.println((int)(g_a0.getCurrentRPS() * 1000));
-        Serial.println((int)(g_a0.getPWM() * 1000.0 / 255));
         Serial.println((int)(speed * 1000));
+        Serial.println(0);
+        //Serial.println((int)(g_b1.getCurrentRPS() * 1000));
 
         if (iteration == 20)
         {
@@ -122,7 +123,7 @@ void loop()
 
         if (iteration == 200)
         {
-            speed = 2;
+            speed = 3;
         }
 
         if (iteration == 220)
@@ -131,15 +132,16 @@ void loop()
             speed     = 0;
         }
 
-        speed = -0.15 / 0.153938;
+        //speed = -0.15 / 0.153938;
 
         g_a0.setRPS(speed);
-        g_a1.setRPS(-speed);
+        g_a1.setRPS(speed);
         g_b0.setRPS(speed);
-        g_b1.setRPS(-speed);
+        g_b1.setRPS(speed);
 
         iteration++;
 #endif
+        g_lastOdomTransTime = millis();
     }
 
     if (Serial.read() == 0xFF)

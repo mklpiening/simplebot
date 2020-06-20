@@ -10,7 +10,7 @@ class Motor
 
     void setPWM(int16_t speed);
 
-    uint16_t getPWM() const;
+    int16_t getPWM() const;
 
     virtual void handle();
 
@@ -24,6 +24,9 @@ class Motor
 
   private:
     void applySpeed();
+
+    void addPulse();
+    void subPulse();
 
     /// motor pins
     uint8_t m_pwm;
@@ -41,7 +44,8 @@ class Motor
     int64_t m_pulses;
 
     /// previous encoder pulse state (1 or 0)
-    bool m_prevEncoderState;
+    bool m_prevEncA = true;
+    bool m_prevEncB = true;
 };
 
 #endif

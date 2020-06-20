@@ -33,7 +33,8 @@ void MotorPID::handle()
 
         float currentRPS = (float)(getPulses() - m_lastPulses) * 1000.0
                        / (float)(PULSES_PER_ROTATION * m_updateInterval);
-        m_currentRPS = 0.4 * m_currentRPS + 0.6 * currentRPS;
+        //m_currentRPS = 0.01 * m_currentRPS + 0.99 * currentRPS;
+        m_currentRPS = currentRPS;
         
         float rpsError = m_targetRPS - m_currentRPS;
         m_rpsErrorIntegral += rpsError * m_updateInterval;
@@ -53,6 +54,7 @@ void MotorPID::handle()
         pwmValue = max(pwmValue, -255);
         pwmValue = min(pwmValue, 255);
 
+        //setPWM(pwmValue * 0.6 + getPWM() * 0.4);
         setPWM(pwmValue);
 
         m_lastPulses   = getPulses();
