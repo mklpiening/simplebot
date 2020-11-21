@@ -25,9 +25,13 @@ class MotorPID : public Motor
 
     void setPIDKoeffs(float kp, float ki, float kd);
 
+    void setRPStoPWMFactor(float k);
+
   private:
     unsigned int m_updateInterval;
     unsigned long m_lastSpeedUpdateTime;
+
+    float m_rpsToPwm;
 
     float m_kp;
     float m_ki;

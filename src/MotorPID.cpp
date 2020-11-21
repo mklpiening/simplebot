@@ -10,7 +10,7 @@ MotorPID::MotorPID(uint8_t pwm,
                    bool invert,
                    unsigned int updateInterval)
     : Motor(pwm, in1, in2, ena, enb, invert), m_updateInterval(updateInterval),
-      m_lastSpeedUpdateTime(0), m_kp(0), m_ki(0), m_kd(0), m_lastPulses(0), m_lastRpsError(0),
+      m_lastSpeedUpdateTime(0), m_rpsToPwm(0), m_kp(0), m_ki(0), m_kd(0), m_lastPulses(0), m_lastRpsError(0),
       m_rpsErrorIntegral(0), m_currentRPS(0)
 {
 }
@@ -23,16 +23,17 @@ void MotorPID::handle()
     {
         m_lastSpeedUpdateTime = millis();
 
-        if (abs(getPulses() - m_lastPulses) > 1000) {
+        if (abs(getPulses() - m_lastPulses) > 1000)
+        {
             m_lastPulses = getPulses();
-           return; 
+            return;
         }
 
         float currentRPS = (float)(getPulses() - m_lastPulses) * 1000.0
-                       / (float)(PULSES_PER_ROTATION * m_updateInterval);
-        //m_currentRPS = 0.01 * m_currentRPS + 0.99 * currentRPS;
+                           / (float)(PULSES_PER_ROTATION * m_updateInterval);
+        // m_currentRPS = 0.01 * m_currentRPS + 0.99 * currentRPS;
         m_currentRPS = currentRPS;
-        
+
         float rpsError = m_targetRPS - m_currentRPS;
         m_rpsErrorIntegral += rpsError * m_updateInterval;
 
@@ -40,7 +41,7 @@ void MotorPID::handle()
         m_rpsErrorIntegral = min(m_rpsErrorIntegral, 1000.0);
         m_rpsErrorIntegral = max(m_rpsErrorIntegral, -1000.0);
 
-        int16_t pwmValue = getPWM() + m_kp * rpsError + m_ki * m_rpsErrorIntegral
+        int16_t pwmValue = m_rpsToPwm * m_targetRPS + m_kp * rpsError + m_ki * m_rpsErrorIntegral
                            + m_kd * (rpsError - m_lastRpsError) * 1000.0 / m_updateInterval;
 
         if (abs(pwmValue) < 30)
@@ -51,7 +52,7 @@ void MotorPID::handle()
         pwmValue = max(pwmValue, -255);
         pwmValue = min(pwmValue, 255);
 
-        //setPWM(pwmValue * 0.6 + getPWM() * 0.4);
+        // setPWM(pwmValue * 0.6 + getPWM() * 0.4);
         setPWM(pwmValue);
 
         m_lastPulses   = getPulses();
@@ -79,4 +80,9 @@ void MotorPID::setPIDKoeffs(float kp, float ki, float kd)
     m_kp = kp;
     m_ki = ki;
     m_kd = kd;
+}
+
+void MotorPID::setRPStoPWMFactor(float k)
+{
+    m_rpsToPwm = k;
 }

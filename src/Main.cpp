@@ -57,7 +57,7 @@ void loop()
         g_bl.handle();
     }
 
-    if (millis() - g_lastOdomTransTime > 100)
+    if (millis() - g_lastOdomTransTime > 200)
     {
         Serial.write(0xFF);
 
@@ -144,7 +144,7 @@ void loop()
             {
                 // INCOMING MOTOR PID PARAMETERS MESSAGE
 
-                int64_t kp, ki, kd;
+                int64_t kp, ki, kd, rpsToPwm;
 
                 // Motor Front Right
                 while (Serial.available() < 8)
@@ -185,6 +185,20 @@ void loop()
 
                 g_fr.setPIDKoeffs((float)kp / 10000.0, (float)ki / 10000.0, (float)kd / 10000.0);
 
+                while (Serial.available() < 8)
+                    ;
+                rpsToPwm = 0;
+                rpsToPwm |= (int64_t)Serial.read();
+                rpsToPwm |= (int64_t)Serial.read() << 8;
+                rpsToPwm |= (int64_t)Serial.read() << 16;
+                rpsToPwm |= (int64_t)Serial.read() << 24;
+                rpsToPwm |= (int64_t)Serial.read() << 32;
+                rpsToPwm |= (int64_t)Serial.read() << 40;
+                rpsToPwm |= (int64_t)Serial.read() << 48;
+                rpsToPwm |= (int64_t)Serial.read() << 56;
+
+                g_fr.setRPStoPWMFactor((float) rpsToPwm / 10000.0);
+
                 // Motor Back Right
                 while (Serial.available() < 8)
                     ;
@@ -223,6 +237,20 @@ void loop()
                 kd |= (int64_t)Serial.read() << 56;
 
                 g_br.setPIDKoeffs((float)kp / 10000.0, (float)ki / 10000.0, (float)kd / 10000.0);
+
+                while (Serial.available() < 8)
+                    ;
+                rpsToPwm = 0;
+                rpsToPwm |= (int64_t)Serial.read();
+                rpsToPwm |= (int64_t)Serial.read() << 8;
+                rpsToPwm |= (int64_t)Serial.read() << 16;
+                rpsToPwm |= (int64_t)Serial.read() << 24;
+                rpsToPwm |= (int64_t)Serial.read() << 32;
+                rpsToPwm |= (int64_t)Serial.read() << 40;
+                rpsToPwm |= (int64_t)Serial.read() << 48;
+                rpsToPwm |= (int64_t)Serial.read() << 56;
+
+                g_br.setRPStoPWMFactor((float) rpsToPwm / 10000.0);
 
                 // Motor Front Left
                 while (Serial.available() < 8)
@@ -263,6 +291,20 @@ void loop()
 
                 g_fl.setPIDKoeffs((float)kp / 10000.0, (float)ki / 10000.0, (float)kd / 10000.0);
 
+                while (Serial.available() < 8);
+                    ;
+                rpsToPwm = 0;
+                rpsToPwm |= (int64_t)Serial.read();
+                rpsToPwm |= (int64_t)Serial.read() << 8;
+                rpsToPwm |= (int64_t)Serial.read() << 16;
+                rpsToPwm |= (int64_t)Serial.read() << 24;
+                rpsToPwm |= (int64_t)Serial.read() << 32;
+                rpsToPwm |= (int64_t)Serial.read() << 40;
+                rpsToPwm |= (int64_t)Serial.read() << 48;
+                rpsToPwm |= (int64_t)Serial.read() << 56;
+
+                g_fl.setRPStoPWMFactor((float) rpsToPwm / 10000.0);
+
                 // Motor Back Left
                 while (Serial.available() < 8)
                     ;
@@ -301,6 +343,20 @@ void loop()
                 kd |= (int64_t)Serial.read() << 56;
 
                 g_bl.setPIDKoeffs((float)kp / 10000.0, (float)ki / 10000.0, (float)kd / 10000.0);
+
+                while (Serial.available() < 8)
+                    ;
+                rpsToPwm = 0;
+                rpsToPwm |= (int64_t)Serial.read();
+                rpsToPwm |= (int64_t)Serial.read() << 8;
+                rpsToPwm |= (int64_t)Serial.read() << 16;
+                rpsToPwm |= (int64_t)Serial.read() << 24;
+                rpsToPwm |= (int64_t)Serial.read() << 32;
+                rpsToPwm |= (int64_t)Serial.read() << 40;
+                rpsToPwm |= (int64_t)Serial.read() << 48;
+                rpsToPwm |= (int64_t)Serial.read() << 56;
+
+                g_bl.setRPStoPWMFactor((float) rpsToPwm / 10000.0);
 
                 g_motor_params_received = true;
 
