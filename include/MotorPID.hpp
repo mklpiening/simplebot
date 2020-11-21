@@ -14,10 +14,7 @@ class MotorPID : public Motor
              uint8_t ena,
              uint8_t enb,
              bool invert,
-             unsigned int updateInterval,
-             float kp,
-             float ki,
-             float kd);
+             unsigned int updateInterval);
 
     virtual void handle();
 
@@ -25,6 +22,8 @@ class MotorPID : public Motor
     float getRPS();
 
     float getCurrentRPS();
+
+    void setPIDKoeffs(float kp, float ki, float kd);
 
   private:
     unsigned int m_updateInterval;

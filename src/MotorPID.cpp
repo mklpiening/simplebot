@@ -8,12 +8,9 @@ MotorPID::MotorPID(uint8_t pwm,
                    uint8_t ena,
                    uint8_t enb,
                    bool invert,
-                   unsigned int updateInterval,
-                   float kp,
-                   float ki,
-                   float kd)
+                   unsigned int updateInterval)
     : Motor(pwm, in1, in2, ena, enb, invert), m_updateInterval(updateInterval),
-      m_lastSpeedUpdateTime(0), m_kp(kp), m_ki(ki), m_kd(kd), m_lastPulses(0), m_lastRpsError(0),
+      m_lastSpeedUpdateTime(0), m_kp(0), m_ki(0), m_kd(0), m_lastPulses(0), m_lastRpsError(0),
       m_rpsErrorIntegral(0), m_currentRPS(0)
 {
 }
@@ -43,7 +40,7 @@ void MotorPID::handle()
         m_rpsErrorIntegral = min(m_rpsErrorIntegral, 1000.0);
         m_rpsErrorIntegral = max(m_rpsErrorIntegral, -1000.0);
 
-        int16_t pwmValue = m_kp * rpsError + m_ki * m_rpsErrorIntegral
+        int16_t pwmValue = getPWM() + m_kp * rpsError + m_ki * m_rpsErrorIntegral
                            + m_kd * (rpsError - m_lastRpsError) * 1000.0 / m_updateInterval;
 
         if (abs(pwmValue) < 30)
@@ -75,4 +72,11 @@ float MotorPID::getRPS()
 float MotorPID::getCurrentRPS()
 {
     return m_currentRPS;
+}
+
+void MotorPID::setPIDKoeffs(float kp, float ki, float kd)
+{
+    m_kp = kp;
+    m_ki = ki;
+    m_kd = kd;
 }
